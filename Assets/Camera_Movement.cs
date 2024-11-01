@@ -11,7 +11,7 @@ public class Camera_Movement : MonoBehaviour
     public float SensitivityY;
     void Awake()
     {
-        
+        Player = FindObjectOfType<Player_Movement>().gameObject;
     }
     private void Start()
     {
