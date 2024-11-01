@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Camera_Movement : MonoBehaviour
 {
-    public GameObject c;
     public GameObject Player;
     public Vector3 Offset;
     public float Distance;
@@ -23,15 +22,15 @@ public class Camera_Movement : MonoBehaviour
     void Update()
     {
         Vector3 center = Player.transform.position + Offset;
-        c.transform.position = center;
+        gameObject.transform.position = center;
 
-        var rot = c.transform.rotation;
+        var rot = gameObject.transform.rotation;
         rot = Quaternion.Euler(
             rot.eulerAngles.x - Input.GetAxis("Mouse Y") * SensitivityX,
             rot.eulerAngles.y + Input.GetAxis("Mouse X") * SensitivityY,
             rot.eulerAngles.z);
 
-        c.transform.rotation = rot;
+        gameObject.transform.rotation = rot;
         
     }
 }
