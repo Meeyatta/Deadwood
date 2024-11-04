@@ -5,31 +5,30 @@ using UnityEngine;
 
 public class Ground_Check : MonoBehaviour
 {
-    public List<string> Tags = new List<string>();
-
-    public GameObject Contact_Current;
-
+    public List<GameObject> Touching;
     Player_Movement pm;
-    
     void Awake()
     {
-        pm = transform.parent.GetComponent<Player_Movement>();
+        pm = GetComponent<Player_Movement>();
     }
 
-    void OnTriggerEnter(Collider other)
+
+    public bool Is_Touching()
     {
-        if (Tags.Contains( other.gameObject.tag))
+        return Touching.Count > 0;
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if ((pm.Ground_Layers & (1<< collision.gameObject.layer)) != 0)
         {
-            Contact_Current = other.gameObject;
-            pm.Is_Grounded = true;
+            Touching.Add(collision.gameObject);
         }
     }
-    void OnTriggerExit(Collider other)
+    private void OnCollisionExit(Collision collision)
     {
-        if (Contact_Current == other.gameObject)
+        if (Touching.Contains(collision.gameObject))
         {
-            Contact_Current = null;
-            pm.Is_Grounded = false;
+            Touching.Remove(collision.gameObject);
         }
     }
 }
