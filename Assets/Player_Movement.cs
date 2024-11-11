@@ -5,13 +5,12 @@ using UnityEngine.InputSystem;
 using System;
 public class Player_Movement : MonoBehaviour
 {
+    public float Gravity;
     public float Jump_Speed;
     public float Speed;
-    public float Drag_Ground;
-    public float Drag_Air;
-    public float Gravity;
+    public float Speed_Air;
+    public float Drag;
 
-    public float Y_Force;
     public bool Is_Jumping;
 
     BoxCollider Col;
@@ -29,6 +28,7 @@ public class Player_Movement : MonoBehaviour
     void Start()
     {
         Rb.velocity = Vector3.zero;
+        Rb.drag = Drag;
     }
     public void Jump_Try(InputAction.CallbackContext c)
     {
@@ -41,7 +41,8 @@ public class Player_Movement : MonoBehaviour
     }
     IEnumerator Jump()
     {
-        Y_Force = Jump_Speed;
+        Rb.AddForce(Vector3.up * Jump_Speed * 100);
+
         while (!Is_Grounded())
         {
             yield return new WaitForSeconds(0.01f);
@@ -51,34 +52,28 @@ public class Player_Movement : MonoBehaviour
     }
     void Movement_Ground(float h, float v)
     {
-        Rb.drag = Drag_Ground;
         Vector3 dir = new Vector3(
             Camera.main.transform.forward.x * v + Camera.main.transform.right.x * h,
             0,
             Camera.main.transform.forward.z * v + Camera.main.transform.right.z * h);
 
-        if (!Is_Jumping)
-        {
-            Y_Force = Math.Clamp(Y_Force, 0, Jump_Speed);
-        }
+        
 
-        Vector3 full = (dir * Speed * Time.deltaTime * 100) + new Vector3(0, Y_Force, 0);
+        Vector3 full = (dir * Speed * Time.deltaTime * 100);
 
-        Rb.velocity = full;
+        Rb.velocity = new Vector3(full.x, Rb.velocity.y , full.z);
     }
     void Movement_Air(float h, float v)
     {
-        Rb.drag = Drag_Air;
+        //Rb.drag = Drag_Air;
 
         Vector3 dir = new Vector3(
             Camera.main.transform.forward.x * v + Camera.main.transform.right.x * h,
             0,
             Camera.main.transform.forward.z * v + Camera.main.transform.right.z * h);
 
-        Y_Force -= Gravity;
-        Vector3 gravity = new Vector3(0, Y_Force, 0);
-        Vector3 full = (dir * Speed * Time.deltaTime * 100) + gravity;
-        Rb.velocity = full;
+        Vector3 full = (dir * Speed_Air * Time.deltaTime * 100);
+        Rb.velocity = new Vector3(full.x, Rb.velocity.y - Gravity * Time.deltaTime , full.z);
     }
     void Update()
     {
@@ -98,7 +93,7 @@ public class Player_Movement : MonoBehaviour
     bool Is_Grounded()
     {
         RaycastHit hit;
-        return Physics.Raycast(transform.position, Vector3.down, out hit, Col.size.y / 2 + 0.2f, Ground_Layers) || GC.Is_Touching();
+        return Physics.Raycast(transform.position, Vector3.down, out hit, Col.size.y / 2 + 1, Ground_Layers) || GC.Is_Touching();
 
     }
 }
